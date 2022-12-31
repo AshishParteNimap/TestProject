@@ -70,5 +70,7 @@ public class Permission implements Serializable {
 	public void setPermissionName(String permissionName) {
 		this.permissionName = permissionName;
 	}
+	
+	
 
 }

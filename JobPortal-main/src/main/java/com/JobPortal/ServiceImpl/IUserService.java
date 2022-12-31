@@ -1,13 +1,13 @@
 package com.JobPortal.ServiceImpl;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,14 +29,15 @@ public class IUserService implements UserService {
 
 	@Autowired
 	private RoleRepository rrepo;
-	
+
 	@Autowired
 	private JobRepository jrepo;
-	
+
 	@Autowired
 	private PasswordEncoder encoder;
 
 	@Override
+	@PreAuthorize("hasAuthority('ADD')")
 	public List<UserDto> getAllUser() {
 		List<User> user = repo.findAll();
 		List<UserDto> dto = new ArrayList<>();
@@ -59,9 +60,9 @@ public class IUserService implements UserService {
 	@Override
 	public String addUser(UserDto user) {
 		User newUser = new User();
-		long id=1;
-		Set<Role> Drole=new HashSet<>();
-		Role roleD=rrepo.findById(id).orElse(null);
+		long id = 1;
+		Set<Role> Drole = new HashSet<>();
+		Role roleD = rrepo.findById(id).orElse(null);
 		Drole.add(roleD);
 		List<User> users = new ArrayList<>();
 		newUser.setUsername(user.getUsername());
@@ -69,7 +70,8 @@ public class IUserService implements UserService {
 		newUser.setFirstName(user.getFirstName());
 		newUser.setLastName(user.getLastName());
 		newUser.setIsactive(true);
-		newUser.setPassword(encoder.encode(user.getPassword()));
+		String encp = new BCryptPasswordEncoder().encode(user.getPassword());
+		newUser.setPassword(encoder.encode(encp));
 		newUser.setRoles(Drole);
 		users.add(newUser);
 		repo.saveAll(users);
@@ -77,7 +79,7 @@ public class IUserService implements UserService {
 	}
 
 	@Override
-	public String upadteUser(Long id,UserDto dto) {
+	public String upadteUser(Long id, UserDto dto) {
 		User user = repo.findById(id).orElse(null);
 		user.setId(user.getId());
 		user.setFirstName(dto.getFirstName());
@@ -98,33 +100,32 @@ public class IUserService implements UserService {
 		return "deleted";
 	}
 
-	public void assignUserRole(Long userId,Long RoleId) {
-		User user=repo.findById(userId).orElse(null);
-		Role role=rrepo.findById(RoleId).orElse(null);
-		Set<Role> userRole=user.getRoles();
+	public void assignUserRole(Long userId, Long RoleId) {
+		User user = repo.findById(userId).orElse(null);
+		Role role = rrepo.findById(RoleId).orElse(null);
+		Set<Role> userRole = user.getRoles();
 		userRole.add(role);
 		user.setRoles(userRole);
 		repo.save(user);
 	}
+
 	@Override
 	public String applyJob(String email, Long Jobid) {
-		User user=repo.findByEmail(email).orElse(null);
-		Jobs job=jrepo.findById(Jobid).orElse(null);
-		Set<Jobs> userJob=user.getJobs();
+		User user = repo.findByEmail(email).orElse(null);
+		Jobs job = jrepo.findById(Jobid).orElse(null);
+		Set<Jobs> userJob = user.getJobs();
 		userJob.add(job);
 		user.setJobs(userJob);
 		repo.save(user);
 		return "job applied";
 	}
-	
-	
 
 	@Override
 	public List<RegisteredDto> getRegisteredUser() {
-		List<User> user=repo.findAll();
-		List<RegisteredDto> newDto=new ArrayList<>();
-		for(int i=0;i<user.size();i++) {
-			RegisteredDto reg=new RegisteredDto();
+		List<User> user = repo.findAll();
+		List<RegisteredDto> newDto = new ArrayList<>();
+		for (int i = 0; i < user.size(); i++) {
+			RegisteredDto reg = new RegisteredDto();
 			reg.setEmail(user.get(i).getEmail());
 			reg.setFirstName(user.get(i).getFirstName());
 			reg.setLastName(user.get(i).getLastName());
@@ -133,8 +134,5 @@ public class IUserService implements UserService {
 		}
 		return newDto;
 	}
-
-	
-
 
 }

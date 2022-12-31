@@ -3,6 +3,7 @@ package com.JobPortal.Controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,7 +32,8 @@ public class UserController {
 
 	@Autowired
 	private UserRepository repo;
-
+	
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/all")
 	public List<UserDto> getAllUser() {
 		return service.getAllUser();
@@ -43,6 +45,7 @@ public class UserController {
 	}
 
 	@PostMapping("/add")
+	//@PreAuthorize("hasAuthority('ADD')")
 	public String addUser(@RequestBody UserDto user) {
 		service.addUser(user);
 		return "user added";
