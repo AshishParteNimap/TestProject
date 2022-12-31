@@ -31,15 +31,16 @@ public class CustomeUserDetailsService implements UserDetailsService {
 	@Transactional
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = repo.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException(username + "no email found"));
+		User user = repo.findByUsername(username);
+				if(user==null) {
+					throw new UsernameNotFoundException(username+"Not found");
+				}
 		System.out.println(user);
-		Set<Role> roles = user.getRoles();
-		return org.springframework.security.core.userdetails.User.withUsername(user.getUsername())
-				.password(user.getPassword()).authorities(getSimpleGrantedAuthorities(user)).accountExpired(false)
-				.accountLocked(false).disabled(false).credentialsExpired(false).build();
-
+		
+		return new CustomeUser(user);
 	}
+}
+
 
 //	private Set<GrantedAuthority> getSimpleGrantedAuthorities(Set<Role> roles) {
 //		Set<GrantedAuthority> authorities = new HashSet<>();
@@ -50,17 +51,19 @@ public class CustomeUserDetailsService implements UserDetailsService {
 //		return authorities;
 //	}
 	
-	private Collection<GrantedAuthority>getSimpleGrantedAuthorities(User user){
-		Set<GrantedAuthority> gAuth=new HashSet<>();
-		//Set<Role> roles=new HashSet<>();
-		for(Role role:user.getRoles()) {
-			gAuth.add(new SimpleGrantedAuthority("ROLE_"+role.getRoleName()));
-//			for(Permission permission:role.getPermissions()) {
-//				gAuth.add(new SimpleGrantedAuthority(permission.getPermissionName()));
-//			}
-		}
-		System.out.println(gAuth);
-		return gAuth;
-	}
-
-}
+//	private Collection<GrantedAuthority>getSimpleGrantedAuthorities(User user){
+//		Set<GrantedAuthority> gAuth=new HashSet<>();
+//		//Set<Role> roles=new HashSet<>();
+//		for(Role role:user.getRoles()) {
+//			gAuth.add(new SimpleGrantedAuthority("ROLE_"+role.getRoleName()));
+////			for(Permission permission:role.getPermissions()) {
+////				gAuth.add(new SimpleGrantedAuthority(permission.getPermissionName()));
+////			}
+//		}
+//		System.out.println(gAuth);
+//		return gAuth;
+//	}
+		
+//	}
+//
+//}

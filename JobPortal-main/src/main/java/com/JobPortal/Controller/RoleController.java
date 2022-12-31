@@ -30,6 +30,7 @@ public class RoleController {
 	private RoleRepository repo;
 
 	@GetMapping("/all")
+	@PreAuthorize("hasAuthority('ADD')")
 	public List<RoleDto> getAllRole() {
 		return Irole.getAllRole();
 	}

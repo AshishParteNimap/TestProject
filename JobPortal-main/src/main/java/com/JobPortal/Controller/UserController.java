@@ -23,7 +23,7 @@ import com.JobPortal.ServiceImpl.IUserService;
 
 @RestController
 @RequestMapping("/User")
-@javax.transaction.Transactional
+//@javax.transaction.Transactional
 
 public class UserController {
 
@@ -33,8 +33,9 @@ public class UserController {
 	@Autowired
 	private UserRepository repo;
 	
-	@PreAuthorize("hasRole('ADMIN')")
+	
 	@GetMapping("/all")
+	@PreAuthorize("hasAuthority('ADD')")
 	public List<UserDto> getAllUser() {
 		return service.getAllUser();
 	}
@@ -45,7 +46,7 @@ public class UserController {
 	}
 
 	@PostMapping("/add")
-	//@PreAuthorize("hasAuthority('ADD')")
+	@PreAuthorize("hasAuthority('ADD')")
 	public String addUser(@RequestBody UserDto user) {
 		service.addUser(user);
 		return "user added";
